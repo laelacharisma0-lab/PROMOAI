@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PromoAI - AI Content Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="topbar">
+    <a href="#" class="brand" onclick="showPage('dashboard'); return false;">
+      <span class="brand-mark">P</span>
+      <span>Promo<span class="brand-accent">AI</span></span>
+    </a>
+
+    <button class="mobile-menu" id="mobileMenu" onclick="toggleSidebar()" aria-label="Buka menu">
+      ☰
+    </button>
+  </header>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-label">MENU UTAMA</div>
+
+      <nav class="nav-menu">
+        <button class="nav-link active" data-page="dashboard" onclick="showPage('dashboard', this)">
+          <span class="nav-icon">⌂</span>
+          <span>Dashboard</span>
+        </button>
+
+        <button class="nav-link" data-page="ideas" onclick="showPage('ideas', this)">
+          <span class="nav-icon">✦</span>
+          <span>Ide Konten</span>
+        </button>
+
+        <button class="nav-link" data-page="planner" onclick="showPage('planner', this)">
+          <span class="nav-icon">▦</span>
+          <span>Content Planner</span>
+        </button>
+
+        <button class="nav-link" data-page="promotion" onclick="showPage('promotion', this)">
+          <span class="nav-icon">✎</span>
+          <span>Generator Promosi</span>
+        </button>
+
+        <button class="nav-link" data-page="history" onclick="showPage('history', this)">
+          <span class="nav-icon">◷</span>
+          <span>Riwayat</span>
+        </button>
+
+        <button class="nav-link" data-page="about" onclick="showPage('about', this)">
+          <span class="nav-icon">ⓘ</span>
+          <span>Tentang</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-note">
+          <span class="note-icon">✦</span>
+          <div>
+            <strong>PromoAI Assistant</strong>
+            <p>Bantu kembangkan ide promosi produkmu.</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- DASHBOARD -->
+      <section class="page active" id="dashboard">
+        <div class="welcome-card">
+          <div class="welcome-content">
+            <span class="eyebrow">AI CONTENT ASSISTANT</span>
+            <h1>Selamat datang di <span>PromoAI!</span></h1>
+            <p>
+              Buat ide konten, susun jadwal promosi, dan hasilkan caption
+              produk dengan lebih mudah.
+            </p>
+          </div>
+          <div class="welcome-art">✦</div>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <h2>Mulai Aktivitas</h2>
+            <p>Pilih fitur yang ingin kamu gunakan.</p>
+          </div>
+        </div>
+
+        <div class="shortcut-grid">
+          <button class="shortcut-card" onclick="showPage('ideas')">
+            <span class="shortcut-icon purple">✦</span>
+            <span class="shortcut-text">
+              <strong>Ide Konten</strong>
+              <small>Temukan inspirasi konten untuk produkmu.</small>
+            </span>
+            <span class="shortcut-arrow">→</span>
+          </button>
+
+          <button class="shortcut-card" onclick="showPage('planner')">
+            <span class="shortcut-icon blue">▦</span>
+            <span class="shortcut-text">
+              <strong>Content Planner</strong>
+              <small>Atur jadwal dan rencana konten.</small>
+            </span>
+            <span class="shortcut-arrow">→</span>
+          </button>
+
+          <button class="shortcut-card" onclick="showPage('promotion')">
+            <span class="shortcut-icon pink">✎</span>
+            <span class="shortcut-text">
+              <strong>Generator Promosi</strong>
+              <small>Buat caption promosi produk secara otomatis.</small>
+            </span>
+            <span class="shortcut-arrow">→</span>
+          </button>
+        </div>
+
+        <div class="section-heading activity-heading">
+          <div>
+            <h2>Aktivitas Terakhir</h2>
+            <p>Ringkasan aktivitas yang pernah kamu lakukan.</p>
+          </div>
+          <button class="text-button" onclick="showPage('history')">Lihat semua →</button>
+        </div>
+
+        <div class="activity-list" id="dashboardActivity">
+          <div class="empty-state compact">
+            <span>◷</span>
+            <p>Belum ada aktivitas. Mulai gunakan fitur PromoAI!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- IDE KONTEN -->
+      <section class="page" id="ideas">
+        <div class="page-heading">
+          <span class="eyebrow">CONTENT INSPIRATION</span>
+          <h1>Ide Konten</h1>
+          <p>Dapatkan inspirasi konten yang sesuai dengan produk dan target audiensmu.</p>
+        </div>
+
+        <div class="content-card">
+          <div class="card-heading">
+            <h2>Informasi Produk</h2>
+            <p>Isi informasi produk untuk mendapatkan ide konten yang relevan.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="ideasName">Nama Produk</label>
+              <input type="text" id="ideasName" placeholder="Contoh: Kopi Susu">
+            </div>
+
+            <div class="form-group">
+              <label for="ideasTarget">Target Audiens</label>
+              <input type="text" id="ideasTarget" placeholder="Contoh: Mahasiswa dan pekerja">
+            </div>
+
+            <div class="form-group full">
+              <label for="ideasDescription">Deskripsi Produk</label>
+              <textarea id="ideasDescription" rows="3" placeholder="Jelaskan keunggulan dan karakteristik produk..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="ideasPlatform">Platform</label>
+              <select id="ideasPlatform">
+                <option value="Instagram">Instagram</option>
+                <option value="TikTok">TikTok</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Semua Platform">Semua Platform</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="ideasType">Jenis Konten</label>
+              <select id="ideasType">
+                <option value="Bebas">Bebas</option>
+                <option value="Edukasi">Edukasi</option>
+                <option value="Promosi">Promosi</option>
+                <option value="Hiburan">Hiburan</option>
+                <option value="Testimoni">Testimoni</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="primary-button" id="generateIdeasBtn" onclick="generateIdeas()">
+            ✦ Buat Ide Konten
+          </button>
+        </div>
+
+        <div class="result-section" id="ideasResultSection" hidden>
+          <div class="result-heading">
+            <div>
+              <h2>Hasil Ide Konten</h2>
+              <p>Rekomendasi konten untuk produkmu.</p>
+            </div>
+          </div>
+          <div class="result-card" id="ideasResult"></div>
+        </div>
+      </section>
+
+      <!-- CONTENT PLANNER -->
+      <section class="page" id="planner">
+        <div class="page-heading">
+          <span class="eyebrow">CONTENT MANAGEMENT</span>
+          <h1>Content Planner</h1>
+          <p>Rencanakan dan atur jadwal publikasi kontenmu.</p>
+        </div>
+
+        <div class="tab-menu">
+          <button class="tab-button active" onclick="switchPlannerTab('aiPlanner', this)">✦ AI Planner</button>
+          <button class="tab-button" onclick="switchPlannerTab('manualPlanner', this)">▦ Manual Planner</button>
+        </div>
+
+        <!-- AI PLANNER -->
+        <div class="planner-tab active" id="aiPlanner">
+          <div class="content-card">
+            <div class="card-heading">
+              <h2>Buat Rencana Konten dengan AI</h2>
+              <p>Masukkan informasi produk dan periode perencanaan.</p>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="plannerName">Nama Produk</label>
+                <input type="text" id="plannerName" placeholder="Nama produk">
+              </div>
+
+              <div class="form-group">
+                <label for="plannerTarget">Target Audiens</label>
+                <input type="text" id="plannerTarget" placeholder="Target audiens">
+              </div>
+
+              <div class="form-group">
+                <label for="plannerDuration">Durasi Planner</label>
+                <select id="plannerDuration">
+                  <option value="3 hari">3 Hari</option>
+                  <option value="7 hari" selected>7 Hari</option>
+                  <option value="14 hari">14 Hari</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="plannerPlatform">Platform</label>
+                <select id="plannerPlatform">
+                  <option value="Instagram">Instagram</option>
+                  <option value="TikTok">TikTok</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="Semua Platform">Semua Platform</option>
+                </select>
+              </div>
+
+              <div class="form-group full">
+                <label for="plannerDescription">Deskripsi Produk</label>
+                <textarea id="plannerDescription" rows="3" placeholder="Jelaskan produk yang akan dipromosikan..."></textarea>
+              </div>
+            </div>
+
+            <button class="primary-button" id="generatePlannerBtn" onclick="generatePlanner()">
+              ✦ Buat Content Planner
+            </button>
+          </div>
+
+          <div class="result-section" id="plannerResultSection" hidden>
+            <div class="result-heading">
+              <div>
+                <h2>Rencana Konten</h2>
+                <p>Hasil perencanaan konten dari AI.</p>
+              </div>
+              <button class="secondary-button" onclick="saveAIPlanner()">Simpan ke Planner</button>
+            </div>
+            <div class="planner-result-list" id="plannerResult"></div>
+          </div>
+        </div>
+
+        <!-- MANUAL PLANNER -->
+        <div class="planner-tab" id="manualPlanner">
+          <div class="content-card">
+            <div class="card-heading">
+              <h2 id="manualFormTitle">Tambah Jadwal Konten</h2>
+              <p>Atur jadwal publikasi konten secara mandiri.</p>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="manualDate">Tanggal Publikasi</label>
+                <input type="date" id="manualDate">
+              </div>
+
+              <div class="form-group">
+                <label for="manualPlatform">Platform</label>
+                <select id="manualPlatform">
+                  <option value="Instagram">Instagram</option>
+                  <option value="TikTok">TikTok</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="YouTube">YouTube</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="manualTitle">Judul Konten</label>
+                <input type="text" id="manualTitle" placeholder="Contoh: Promo produk terbaru">
+              </div>
+
+              <div class="form-group">
+                <label for="manualType">Jenis Konten</label>
+                <select id="manualType">
+                  <option value="Promosi">Promosi</option>
+                  <option value="Edukasi">Edukasi</option>
+                  <option value="Hiburan">Hiburan</option>
+                  <option value="Testimoni">Testimoni</option>
+                  <option value="Informasi">Informasi</option>
+                </select>
+              </div>
+
+              <div class="form-group full">
+                <label for="manualNotes">Catatan (Opsional)</label>
+                <textarea id="manualNotes" rows="2" placeholder="Tambahkan catatan konten..."></textarea>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="primary-button" id="saveManualBtn" onclick="saveManualPlan()">+ Tambah Jadwal</button>
+              <button class="secondary-button" id="cancelEditBtn" onclick="cancelManualEdit()" hidden>Batal</button>
+            </div>
+          </div>
+
+          <div class="planner-list-header">
+            <div>
+              <h2>Daftar Jadwal</h2>
+              <p id="manualPlanCount">0 jadwal tersimpan</p>
+            </div>
+
+            <select id="manualFilter" class="filter-select" onchange="renderManualPlans()">
+              <option value="Semua">Semua Status</option>
+              <option value="Belum">Belum Dikerjakan</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+
+          <div class="manual-plan-list" id="manualPlanList">
+            <div class="empty-state">
+              <span>▦</span>
+              <p>Belum ada jadwal konten. Tambahkan jadwal pertamamu.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GENERATOR PROMOSI -->
+      <section class="page" id="promotion">
+        <div class="page-heading">
+          <span class="eyebrow">AI PROMOTION GENERATOR</span>
+          <h1>Generator Promosi</h1>
+          <p>Buat caption promosi produk yang menarik dengan bantuan AI.</p>
+        </div>
+
+        <div class="content-card">
+          <div class="card-heading">
+            <h2>Informasi Promosi</h2>
+            <p>Lengkapi informasi berikut untuk membuat caption.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="promoName">Nama Produk</label>
+              <input type="text" id="promoName" placeholder="Contoh: Kopi Susu">
+            </div>
+
+            <div class="form-group">
+              <label for="promoPrice">Harga Produk</label>
+              <input type="text" id="promoPrice" placeholder="Contoh: Rp15.000">
+            </div>
+
+            <div class="form-group">
+              <label for="promoTarget">Target Audiens</label>
+              <input type="text" id="promoTarget" placeholder="Contoh: Anak muda">
+            </div>
+
+            <div class="form-group">
+              <label for="promoStyle">Gaya Bahasa</label>
+              <select id="promoStyle">
+                <option value="Persuasif">Persuasif</option>
+                <option value="Santai dan kekinian">Santai dan Kekinian</option>
+                <option value="Profesional">Profesional</option>
+                <option value="Menarik dan ceria">Menarik dan Ceria</option>
+                <option value="Elegan">Elegan</option>
+              </select>
+            </div>
+
+            <div class="form-group full">
+              <label for="promoDescription">Deskripsi dan Keunggulan Produk</label>
+              <textarea id="promoDescription" rows="4" placeholder="Tuliskan deskripsi dan keunggulan produk..."></textarea>
+            </div>
+          </div>
+
+          <button class="primary-button" id="generateCaptionBtn" onclick="generateCaption()">
+            ✦ Buat Caption Promosi
+          </button>
+        </div>
+
+        <div class="result-section" id="captionResultSection" hidden>
+          <div class="result-heading">
+            <div>
+              <h2>Hasil Caption</h2>
+              <p>Caption promosi yang dibuat untuk produkmu.</p>
+            </div>
+            <button class="secondary-button" onclick="copyCaption()">▢ Salin Caption</button>
+          </div>
+          <div class="result-card caption-result" id="captionResult"></div>
+        </div>
+      </section>
+
+      <!-- HISTORY -->
+      <section class="page" id="history">
+        <div class="page-heading">
+          <span class="eyebrow">YOUR ACTIVITY</span>
+          <h1>Riwayat Aktivitas</h1>
+          <p>Lihat kembali hasil konten yang pernah dibuat menggunakan AI.</p>
+        </div>
+
+        <div class="history-toolbar">
+          <span id="historyCount">0 hasil tersimpan</span>
+          <button class="danger-button" onclick="clearHistory()">Hapus Semua</button>
+        </div>
+
+        <div class="history-list" id="historyList">
+          <div class="empty-state">
+            <span>◷</span>
+            <p>Belum ada riwayat hasil AI.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section class="page" id="about">
+        <div class="page-heading">
+          <span class="eyebrow">ABOUT PROMOAI</span>
+          <h1>Tentang PromoAI</h1>
+          <p>Asisten digital untuk membantu perencanaan dan pembuatan konten promosi.</p>
+        </div>
+
+        <div class="content-card about-card">
+          <div class="about-logo">P</div>
+          <h2>Promo<span>AI</span></h2>
+          <p>
+            PromoAI merupakan platform berbasis kecerdasan buatan yang membantu
+            pengguna mengembangkan ide konten, menyusun jadwal publikasi,
+            dan membuat caption promosi produk.
+          </p>
+
+          <div class="about-features">
+            <div><span>✦</span><strong>Ide Konten</strong><small>Inspirasi konten sesuai produk.</small></div>
+            <div><span>▦</span><strong>Content Planner</strong><small>Pengelolaan jadwal konten.</small></div>
+            <div><span>✎</span><strong>Generator Promosi</strong><small>Pembuatan caption otomatis.</small></div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        PromoAI · AI Content Assistant
+      </footer>
+
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
