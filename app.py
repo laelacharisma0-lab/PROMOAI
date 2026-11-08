@@ -31,7 +31,40 @@ app = Flask(__name__)
 
 
 # ======================================
-# MEMBACA FOTO DAN INFORMASI PRODUK
+# MEMBACA DATA PRODUK
+# ======================================
+
+def get_product_data(data):
+    return {
+        "nama": (
+            data.get("nama")
+            or data.get("tema")
+            or data.get("product_name")
+            or ""
+        ).strip(),
+
+        "deskripsi": (
+            data.get("deskripsi")
+            or data.get("product_description")
+            or ""
+        ).strip(),
+
+        "target": (
+            data.get("target")
+            or "Umum"
+        ).strip(),
+
+        "platform": (
+            data.get("platform")
+            or ""
+        ).strip(),
+
+        "gambar": data.get("product_image") or ""
+    }
+
+
+# ======================================
+# MEMBACA FOTO PRODUK
 # ======================================
 
 def build_gemini_contents(prompt, data):
@@ -69,24 +102,6 @@ def build_gemini_contents(prompt, data):
             )
         )
 
-    product_name = (data.get("product_name") or "").strip()
-    product_description = (
-        data.get("product_description") or ""
-    ).strip()
-
-    if product_name or product_description:
-
-        contents.append(
-            f"""
-Informasi produk dari pengguna:
-
-Nama produk: {product_name or "Tidak disebutkan"}
-
-Deskripsi produk:
-{product_description or "Tidak disebutkan"}
-"""
-        )
-
     return contents
 
 
@@ -100,7 +115,7 @@ def home():
 
 
 # ======================================
-# GENERATOR CAPTION AI
+# GENERATOR CAPTION PROMOSI
 # ======================================
 
 @app.route("/api/generate-caption", methods=["POST"])
@@ -108,29 +123,22 @@ def generate_caption():
 
     if not client:
         return jsonify({
-            "error": "API Key Gemini belum ditemukan. Periksa file .env."
+            "error": "API Key Gemini belum ditemukan. Periksa Environment Variables."
         }), 500
 
     data = request.get_json(silent=True) or {}
+    product = get_product_data(data)
 
-    nama = (data.get("nama") or "").strip()
-    deskripsi = (data.get("deskripsi") or "").strip()
+    nama = product["nama"]
+    deskripsi = product["deskripsi"]
+    target = product["target"]
+
     harga = (data.get("harga") or "").strip()
-    target = (data.get("target") or "").strip()
-    gaya = (data.get("gaya") or "ceria").strip()
+    gaya = (data.get("gaya") or "Persuasif").strip()
 
-    product_name = (data.get("product_name") or "").strip()
-    product_description = (
-        data.get("product_description") or ""
-    ).strip()
-    product_image = data.get("product_image") or ""
-
-    nama = nama or product_name
-    deskripsi = deskripsi or product_description
-
-    if not nama and not deskripsi and not product_image:
+    if not nama or not deskripsi or not target:
         return jsonify({
-            "error": "Masukkan informasi atau foto produk terlebih dahulu."
+            "error": "Lengkapi nama, deskripsi, dan target audiens produk."
         }), 400
 
     prompt = f"""
@@ -139,14 +147,11 @@ Kamu adalah ahli digital marketing untuk UMKM Indonesia.
 Buatkan caption promosi media sosial yang menarik,
 singkat, kreatif, dan siap dipublikasikan.
 
-Nama produk: {nama or "Analisis dari foto produk"}
-Deskripsi: {deskripsi or "Analisis dari foto produk"}
+Nama produk: {nama}
+Deskripsi: {deskripsi}
 Harga: {harga or "Tidak dicantumkan"}
-Target konsumen: {target or "Umum"}
+Target konsumen: {target}
 Gaya bahasa: {gaya}
-
-Jika terdapat foto produk, amati foto tersebut untuk
-memahami jenis dan tampilan produknya.
 
 Ketentuan:
 - Gunakan bahasa Indonesia.
@@ -178,7 +183,7 @@ Ketentuan:
         print("Gemini Caption Error:", repr(e))
 
         return jsonify({
-            "error": str(e)
+            "error": "Gagal membuat caption: " + str(e)
         }), 500
 
 
@@ -195,23 +200,22 @@ def generate_ideas():
         }), 500
 
     data = request.get_json(silent=True) or {}
+    product = get_product_data(data)
 
-    tema = (data.get("tema") or "").strip()
-    platform = (data.get("platform") or "").strip()
-    target = (data.get("target") or "Umum").strip()
-    gaya = (data.get("gaya") or "Kreatif").strip()
+    nama = product["nama"]
+    deskripsi = product["deskripsi"]
+    target = product["target"]
+    platform = product["platform"]
 
-    product_name = (data.get("product_name") or "").strip()
-    product_description = (
-        data.get("product_description") or ""
+    jenis = (
+        data.get("jenis")
+        or data.get("jenis_konten")
+        or "Bebas"
     ).strip()
-    product_image = data.get("product_image") or ""
 
-    tema = tema or product_name
-
-    if not tema and not product_description and not product_image:
+    if not nama or not deskripsi or not target:
         return jsonify({
-            "error": "Masukkan tema atau informasi produk terlebih dahulu."
+            "error": "Lengkapi nama, deskripsi, dan target audiens produk."
         }), 400
 
     if not platform:
@@ -224,13 +228,11 @@ Kamu adalah ahli strategi konten media sosial.
 
 Buatkan 5 ide konten promosi yang kreatif dan relevan.
 
-Tema: {tema or "Sesuaikan dengan foto produk"}
+Nama produk: {nama}
+Deskripsi produk: {deskripsi}
 Platform: {platform}
 Target konsumen: {target}
-Gaya konten: {gaya}
-
-Jika ada foto produk, gunakan foto tersebut untuk memahami
-produk dan menyesuaikan ide konten.
+Jenis konten: {jenis}
 
 Untuk setiap ide, tampilkan:
 
@@ -243,6 +245,7 @@ Ketentuan:
 - Gunakan bahasa Indonesia.
 - Buat 5 ide yang berbeda.
 - Sesuaikan dengan platform.
+- Sesuaikan dengan jenis konten yang dipilih.
 - Jangan mengarang klaim produk.
 - Hindari pembukaan panjang.
 - Jawaban harus ringkas dan jelas.
@@ -273,7 +276,7 @@ Ketentuan:
         print("Gemini Ideas Error:", repr(e))
 
         return jsonify({
-            "error": str(e)
+            "error": "Gagal membuat ide konten: " + str(e)
         }), 500
 
 
@@ -290,22 +293,36 @@ def generate_plan():
         }), 500
 
     data = request.get_json(silent=True) or {}
+    product = get_product_data(data)
 
-    tema = (data.get("tema") or "").strip()
-    platform = (data.get("platform") or "").strip()
-    durasi = data.get("durasi")
+    nama = product["nama"]
+    deskripsi = product["deskripsi"]
+    target = product["target"]
+    platform = product["platform"]
 
-    product_name = (data.get("product_name") or "").strip()
-    product_description = (
-        data.get("product_description") or ""
-    ).strip()
-    product_image = data.get("product_image") or ""
+    durasi_raw = str(
+        data.get("durasi")
+        or data.get("jumlah_hari")
+        or "7"
+    )
 
-    tema = tema or product_name
+    match = re.search(r"\d+", durasi_raw)
 
-    if not tema and not product_description and not product_image:
+    if not match:
         return jsonify({
-            "error": "Masukkan tema atau informasi produk terlebih dahulu."
+            "error": "Durasi planner tidak valid."
+        }), 400
+
+    durasi = int(match.group())
+
+    if durasi not in [3, 7, 14]:
+        return jsonify({
+            "error": "Durasi hanya boleh 3, 7, atau 14 hari."
+        }), 400
+
+    if not nama or not deskripsi or not target:
+        return jsonify({
+            "error": "Lengkapi nama, deskripsi, dan target audiens produk."
         }), 400
 
     if not platform:
@@ -313,34 +330,21 @@ def generate_plan():
             "error": "Platform media sosial wajib diisi."
         }), 400
 
-    try:
-        durasi = int(durasi)
-    except (TypeError, ValueError):
-        return jsonify({
-            "error": "Durasi tidak valid."
-        }), 400
-
-    if durasi not in [7, 14, 30]:
-        return jsonify({
-            "error": "Durasi hanya boleh 7, 14, atau 30 hari."
-        }), 400
-
     prompt = f"""
 Kamu adalah ahli social media content strategist.
 
 Buatkan Content Planner selama {durasi} hari.
 
-Tema konten: {tema or "Sesuaikan dengan foto produk"}
+Nama produk: {nama}
+Deskripsi produk: {deskripsi}
+Target audiens: {target}
 Platform publikasi: {platform}
-
-Jika ada foto produk, gunakan informasi visualnya
-untuk menyesuaikan seluruh jadwal konten.
 
 Ketentuan:
 - Gunakan bahasa Indonesia.
 - Buat tepat {durasi} hari.
 - Setiap hari memiliki ide yang berbeda.
-- Sesuaikan ide dengan tema dan platform.
+- Sesuaikan ide dengan produk dan platform.
 - Setiap hari berisi:
   1. Hari
   2. Ide konten
@@ -387,7 +391,7 @@ Lanjutkan sampai HARI {durasi}.
         print("Gemini Planner Error:", repr(e))
 
         return jsonify({
-            "error": str(e)
+            "error": "Gagal membuat content planner: " + str(e)
         }), 500
 
 
@@ -406,4 +410,3 @@ if __name__ == "__main__":
         port=port,
         debug=False
     )
-    app=app
